@@ -138,3 +138,7 @@ app.post("/api/login", async (req, res) => {
 });
 
 app.listen(process.env.PORT, () => console.log(`API on http://localhost:${process.env.PORT}`));
+
+app.get("/", (req, res) => {
+  res.send("Welcome to the Birthday Lyrics AI API");
+});
