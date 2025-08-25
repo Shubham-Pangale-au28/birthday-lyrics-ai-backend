@@ -4,7 +4,7 @@ import cors from "cors";
 import mongoose from "mongoose";
 import { z } from "zod";
 import OpenAI from "openai";
-import User from "./models/User.ts";
+import User from "./models/User";
 import { ElevenLabsClient, play } from "@elevenlabs/elevenlabs-js";
 
 const app = express();
