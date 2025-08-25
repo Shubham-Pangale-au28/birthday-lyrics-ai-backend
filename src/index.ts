@@ -5,7 +5,6 @@ import mongoose from "mongoose";
 import { z } from "zod";
 import OpenAI from "openai";
 import User from "./models/User";
-import { ElevenLabsClient, play } from "@elevenlabs/elevenlabs-js";
 
 const app = express();
 app.use(cors());
@@ -25,7 +24,7 @@ mongoose
 // ---------- validators ----------
 const registerSchema = z.object({
   name: z.string().min(2).max(60),
-  phone: z.string().regex(/^[6-9]\d{9}$/), // India 10-digit mobile sample
+  phone: z.string().regex(/^[6-9]\d{9}$/),
   email: z.string().email(),
   gender: z.enum(["male", "female", "other"]).optional(),
   genre: z.string().min(3).max(20).optional(),
@@ -97,33 +96,27 @@ app.post("/api/lyrics", async (req, res) => {
   res.json({ lyrics });
 });
 
-// 4) TTS (server-side using ElevenLabs, optional)
 app.post("/api/tts", async (req, res) => {
-  const { text } = req.body as { text: string };
-  if (!text) return res.status(400).send("text required");
+  const { text } = req.body;
+  const voiceId = "21m00Tcm4TlvDq8ikWAM";
 
-  // Example using ElevenLabs REST (pseudo-minimal)
-  // If you don't have a key, skip this route and use client-side Web Speech API.
-  const apiKey = process.env.ELEVENLABS_API_KEY;
-  if (!apiKey) return res.status(400).json({ message: "TTS key missing" });
-  const elevenlabs = new ElevenLabsClient({
-    apiKey: apiKey, // Defaults to process.env.ELEVENLABS_API_KEY
+  const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
+    method: "POST",
+    headers: {
+      "xi-api-key": process.env.ELEVENLABS_API_KEY!,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      text,
+      model_id: "eleven_monolingual_v1",
+      voice_settings: { stability: 0.4, similarity_boost: 0.7 },
+    }),
   });
-  const audio = await elevenlabs.textToSpeech.convert(
-    "JBFqnCBsd6RMkjVDRZzb", // voice_id
-    {
-      text: text,
-      modelId: "eleven_multilingual_v2",
-      outputFormat: "mp3_44100_128", // output_format
-    }
-  );
 
-  await play(audio);
-
-  if (!audio) return res.status(500).send("TTS failed");
+  if (!response.ok) return res.status(500).send("TTS failed");
 
   res.setHeader("Content-Type", "audio/mpeg");
-  res.send(audio);
+  res.send(Buffer.from(await response.arrayBuffer()));
 });
 
 app.post("/api/login", async (req, res) => {
