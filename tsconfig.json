@@ -8,15 +8,14 @@
     "declaration": true,
     "declarationMap": true,
     "module": "CommonJS",
-    "moduleResolution": "Node",
+    "moduleResolution": "node",
     "target": "ESNext",
     "esModuleInterop": true,
     "noImplicitAny": true,
     "strictNullChecks": true,
     "strictFunctionTypes": true,
     "strictBindCallApply": true,
-    "alwaysStrict": true,
-    "types": ["node"]
+    "alwaysStrict": true
   },
   "include": ["src"],
   "exclude": ["node_modules", "dist"]
