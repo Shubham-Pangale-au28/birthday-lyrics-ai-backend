@@ -15,7 +15,8 @@
     "strictNullChecks": true,
     "strictFunctionTypes": true,
     "strictBindCallApply": true,
-    "alwaysStrict": true
+    "alwaysStrict": true,
+    "types": ["node"]
   },
   "include": ["src"],
   "exclude": ["node_modules", "dist"]
