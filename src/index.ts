@@ -1,5 +1,5 @@
 import "dotenv/config";
-import express from "express";
+import express, { Request, Response } from "express";
 import cors from "cors";
 import mongoose from "mongoose";
 import { z } from "zod";
@@ -39,7 +39,7 @@ const detailsSchema = z.object({
 
 // ---------- routes ----------
 // 1) register
-app.post("/api/register", async (req, res) => {
+app.post("/api/register", async (req: Request, res: Response) => {
   const parsed = registerSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json(parsed.error.issues);
   const user = await User.create(parsed.data);
@@ -47,7 +47,7 @@ app.post("/api/register", async (req, res) => {
 });
 
 // 2) mock OTP (OTP = 1234 as per assignment)
-app.post("/api/otp/verify", (req, res) => {
+app.post("/api/otp/verify", (req: Request, res: Response) => {
   const { otp } = req.body;
   if (otp === "1234") return res.json({ ok: true });
   return res.status(400).json({ ok: false, message: "Invalid OTP" });
@@ -60,12 +60,9 @@ const openai = new OpenAI({
 });
 
 function buildPrompt(receiverName: string, genre: string, gender: "male" | "female" | "other") {
-  // pronouns per assignment doc
   const third = gender === "male" ? "him" : gender === "female" ? "her" : "them";
   const poss = gender === "male" ? "his" : gender === "female" ? "her" : "their";
 
-  // Prompt per “Input Script for ChatGPT” with dynamic replacements
-  // (kept verbatim structure and constraints). :contentReference[oaicite:2]{index=2}
   return `
 Wish a happy birthday to ${receiverName}.
 
@@ -77,7 +74,7 @@ The lyrics generated should be completely unique and never written before every 
 `.trim();
 }
 
-app.post("/api/lyrics", async (req, res) => {
+app.post("/api/lyrics", async (req: Request, res: Response) => {
   const parsed = detailsSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json(parsed.error.issues);
   const { userId, gender, genre, receiverName } = parsed.data;
@@ -96,7 +93,7 @@ app.post("/api/lyrics", async (req, res) => {
   res.json({ lyrics });
 });
 
-app.post("/api/tts", async (req, res) => {
+app.post("/api/tts", async (req: Request, res: Response) => {
   const { text } = req.body;
   const voiceId = "21m00Tcm4TlvDq8ikWAM";
 
@@ -119,7 +116,7 @@ app.post("/api/tts", async (req, res) => {
   res.send(Buffer.from(await response.arrayBuffer()));
 });
 
-app.post("/api/login", async (req, res) => {
+app.post("/api/login", async (req: Request, res: Response) => {
   const { email, password } = req.body;
   if (!email || !password) return res.status(400).send("Missing fields");
 
